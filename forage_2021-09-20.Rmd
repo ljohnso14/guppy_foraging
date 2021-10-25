@@ -1,0 +1,219 @@
+---
+title: "GuppyForagingPlasticity"
+author: "Lauren E Johnson"
+date: "9/20/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Importing the data 
+```{r}
+getwd()
+setwd("C:/Users/laure/OneDrive/Documents/1.WUSTL/GordonLab/ForagingPlasticity/data/processed")
+
+df <- read.csv("ForagingAssayData_2021_10_25_8.28.csv", stringsAsFactors = F)
+```
+
+Subsetting the data by **population** and **sex**
+```{r}
+df.ah <- df[which(df$Population == "AH"),]
+df.ah.F <- df.ah[which(df.ah$Sex == "F"),]
+df.ah.M <- df.ah[which(df.ah$Sex == "M"),]
+
+df.al <- df[which(df$Population == "AL"),]
+df.al.F <- df.al[which(df.al$Sex == "F"),]
+df.al.M <- df.al[which(df.al$Sex == "M"),]
+
+
+```
+
+
+Summary of 4 df
+```{r}
+summary(df.ah.F)
+
+summary(df.ah.M)
+
+summary(df.al.F)
+
+summary(df.al.M)
+
+```
+
+
+
+Create boxplots 
+https://r-graphics.org/recipe-bar-graph-adjust-width
+```{r}
+library(ggplot2)
+
+bx.ah.F <- ggplot(df.ah.F, aes(Pred_Tutor, Attempts, fill = Water)) 
+  
+bx.ah.F + geom_violin(alpha = 0.25, position = position_dodge(0.7)) + 
+  geom_boxplot(width = 0.1, position = position_dodge(0.7)) + 
+  #ylim(0,275) +
+  mdthemes::md_theme_classic() + 
+  labs(subtitle= "Aripo High Predation Females", x = NULL, y = "Foraging Attempts",color = "black") + 
+  stat_summary(fun.y=mean, geom="point", color = "black", shape = 4, show.legend = F, position = position_dodge(0.7)) + 
+  theme_classic()
+```
+
+```{r}
+library(ggplot2)
+
+bx.ah.M <- ggplot(df.ah.M, aes(Pred_Tutor, Attempts, fill = Water)) 
+  
+bx.ah.M + geom_violin(alpha = 0.25, position = position_dodge(0.7)) + 
+  geom_boxplot(width = 0.1, position = position_dodge(0.7)) +
+  #ylim(0,275) +
+  mdthemes::md_theme_classic() + 
+  labs(subtitle= "Aripo High Predation Males", x = NULL, y = "Foraging Attempts",color = "black") + 
+  stat_summary(fun.y=mean, geom="point", color = "black", shape = 4, show.legend = F, position = position_dodge(0.7)) + 
+  theme_classic()
+```
+
+Note to self: I'm not really digging how squished the violin and boxplots look on the AL male and female graphs
+I understand standardizing the axis but I wonder if this can be a misleading visual display of the data?
+
+
+```{r}
+library(ggplot2)
+
+bx.al.F <- ggplot(df.al.F, aes(Pred_Tutor, Attempts, fill = Water)) 
+  
+bx.al.F + geom_violin(alpha = 0.25, position = position_dodge(0.7)) + 
+  geom_boxplot(width = 0.1, position = position_dodge(0.7)) + 
+  #ylim(0,275) +
+  mdthemes::md_theme_classic() + 
+  labs(subtitle= "Aripo Low Predation Females", x = NULL, y = "Foraging Attempts",color = "black") + 
+  stat_summary(fun.y=mean, geom="point", color = "black", shape = 4, show.legend = F, position = position_dodge(0.7)) + 
+  theme_classic()
+```
+
+```{r}
+library(ggplot2)
+
+bx.al.M <- ggplot(df.al.M, aes(Pred_Tutor, Attempts, fill = Water)) 
+  
+bx.al.M + geom_violin(alpha = 0.25, position = position_dodge(0.7)) + 
+  geom_boxplot(width = 0.1, position = position_dodge(0.7)) + 
+  #ylim(0,275) +
+  mdthemes::md_theme_classic() + 
+  labs(subtitle= "Aripo Low Predation Males", x = NULL, y = "Foraging Attempts",color = "black") + 
+  stat_summary(fun.y=mean, geom="point", color = "black", shape = 4, show.legend = F, position = position_dodge(0.7)) + 
+  theme_classic()
+```
+
+
+
+Survival Plots
+Palette from display.brewer.pal
+Palette name "Pairs"
+Light blue: "#A6CEE3"
+Dark blue: "#1F78B4"
+Light orange: "#FDBF6F"
+Dark orange: "#FF7F00"
+
+```{r}
+library(ggpubr)
+library(survminer)
+library(survival)
+
+fit.ah.F <- survfit(Surv(Latency) ~ Pred_Tutor, data = df.ah.F)
+
+ggsurvplot(fit.ah.F, facet.by = "Water", data = df.ah.F, 
+           palette = c("#A6CEE3", "#FDBF6F" , "#1F78B4","#FF7F00"), 
+           ylab = "Proportion of fish that have not foraged", 
+           title = "Aripo High Predation Females")
+
+```
+
+```{r}
+
+fit.ah.M <- survfit(Surv(Latency) ~ Pred_Tutor, data = df.ah.M)
+
+ggsurvplot(fit.ah.M, facet.by = "Water", data = df.ah.M, 
+           palette = c("#A6CEE3", "#FDBF6F" , "#1F78B4","#FF7F00"), 
+           ylab = "Proportion of fish that have not foraged", 
+           title = "Aripo High Predation Males")
+
+```
+
+```{r}
+
+fit.al.F <- survfit(Surv(Latency) ~ Pred_Tutor, data = df.al.F)
+
+ggsurvplot(fit.al.F, facet.by = "Water", data = df.al.F, 
+           palette = c("#A6CEE3", "#FDBF6F" , "#1F78B4","#FF7F00"), 
+           ylab = "Proportion of fish that have not foraged", 
+           title = "Aripo Low Predation Females")
+
+```
+
+```{r}
+
+fit.al.M <- survfit(Surv(Latency) ~ Pred_Tutor, data = df.al.M)
+
+ggsurvplot(fit.al.M, facet.by = "Water", data = df.al.M, 
+           palette = c("#A6CEE3", "#FDBF6F" , "#1F78B4","#FF7F00"), 
+           ylab = "Proportion of fish that have not foraged", 
+           title = "Aripo Low Predation Males")
+
+```
+
+
+
+Statistical Analysis 
+
+
+Statistics 
+Mixed Effects Cox Regression
+Used to model survival data when there are repeated measures of an individual 
+Resource: https://stats.idre.ucla.edu/r/dae/mixed-effects-cox-regression/
+
+```{r}
+
+#install.packages("coxme")
+
+library(coxme)
+
+
+cox <- coxme(Surv(Latency) ~ Population + Sex + Pred * Tutor_pop * Water + (1 | ID), data = df)
+summary(cox)
+
+```
+```{r}
+
+cox <- coxme(Surv(Latency) ~ Population + Pred + Tutor_pop + Water + (1 | ID), data = df)
+summary(cox)
+
+```
+
+```{r}
+
+cox.ah.F <- coxme(Surv(Latency) ~ Pred * Tutor_pop * Water + (1 | ID), data = df.ah.F)
+summary(cox.ah.F)
+```
+
+```{r}
+
+cox.ah.M <- coxme(Surv(Latency) ~ Pred * Tutor_pop * Water + (1 | ID), data = df.ah.M)
+summary(cox.ah.M)
+
+```
+
+```{r}
+
+cox.al.F <- coxme(Surv(Latency) ~ Pred * Tutor_pop * Water + (1 | ID), data = df.al.F)
+summary(cox.al.F)
+
+```
+
+
+```{r}
+
+cox.al.M <- coxme(Surv(Latency) ~ Pred * Tutor_pop * Water + (1 | ID), data = df.al.M)
+summary(cox.al.M)
+
+```
